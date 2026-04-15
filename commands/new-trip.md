@@ -11,6 +11,7 @@ Extract the following from `$ARGUMENTS`. Use the defaults shown if not specified
 - **Dates** (optional): Trip dates. Default: 14 nights
 - **Travelers** (optional): Who is traveling — e.g. "family of 4", "couple", "solo", "group of 6". Default: solo
 - **Departing from** (optional): Home airport. Default: ask the user
+- **Vehicle type** (optional): "EV" or "gas". Default: EV. When driving, calculate fuel/charging costs using EV rates unless the user specifies a gas car.
 - **Events** (optional): Conferences, weddings, festivals, etc. If specified, integrate into the itinerary on the correct dates and add to the checklist.
 - **Purpose/theme** (optional): e.g. "food tour", "adventure", "relaxation", "conference + sightseeing". Influences itinerary and tips.
 - **Home currency** (optional): The traveler's home currency for budget planning. Default: USD
@@ -44,6 +45,7 @@ An Astro static site deployed on GitHub Pages. The site should include:
 - **Hotel descriptions:** Adjust room type notes (e.g. "double room" for couples, "family room or 2 doubles" for families, "single" for solo)
 - **Budget estimates:** Scale food, activities, and transport estimates based on number of travelers
 - **Flight budget:** Scale ~$2,000 USD equivalent per person for long-haul, ~$500–800 for short-haul
+- **Driving costs:** Default to EV charging rates. Only use gas estimates if the user specifies "gas car".
 - **Activity costs:** Note per-person pricing with correct total for the group size
 
 ## Adapting for events
