@@ -57,6 +57,16 @@ If a conference, festival, or event is specified:
 - Mention the event in the overview page and about page
 - Adjust the city schedule to accommodate the event dates
 
+### Ice Cream Selfie ideas (conferences only)
+
+Mariatta has a tradition of taking Ice Cream Selfies at every conference she attends. When the trip includes a conference:
+- Research and recommend 3–5 highly-rated ice cream shops, gelaterias, or frozen dessert spots near the conference venue and in the conference city
+- Add an "Ice Cream Selfie" section to the conference city's data file with: shop name, address, signature flavors, real coordinates, Google Maps link, and a brief note on what makes it photo-worthy (colorful scoops, iconic storefront, rooftop seating, etc.)
+- Add map pins for ice cream spots on the city map with a distinct marker category (e.g. ice cream emoji or dessert icon in the legend)
+- Include an "Ice Cream Selfie Spots" card on the conference city page, styled as a fun highlight section
+- Add a checklist item: "Scout ice cream selfie spot near venue"
+- If the conference spans multiple days, suggest a different ice cream spot for each day so there's variety
+
 ## Site structure
 
 ```
@@ -95,7 +105,7 @@ public/
 ## Data files
 
 ### types.ts
-Define interfaces for: Hotel, Restaurant, Activity, Day, ChecklistItem, ChecklistCategory, MapPoint, BudgetItem (with `currency` field), BudgetCategory, CityData.
+Define interfaces for: Hotel, Restaurant, Activity, Day, ChecklistItem, ChecklistCategory, MapPoint, BudgetItem (with `currency` field), BudgetCategory, CityData, and IceCreamSpot (for conference trips: name, address, coordinates, signatureFlavors, mapsLink, photoNote).
 
 ### City data files
 Each city needs:
