@@ -16,7 +16,7 @@ Rule of thumb: a command is something you ask for, a skill is something Claude s
 
 ## Available commands
 
-None right now. `/new-trip` used to live here; it only ever made sense inside the [mariatta-travels](https://github.com/Mariatta/mariatta-travels) monorepo, so it lives there now as a project command.
+None right now. `/new-trip` used to live here; it only ever made sense inside the travel monorepo it was written for, so it lives there now as a project command.
 
 ## Available skills
 

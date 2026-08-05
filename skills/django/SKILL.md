@@ -210,11 +210,12 @@ including directly on the user.
   (a credit, a quota), that spend is a separate atomic call at write time, never
   inside the predicate, because predicates run on GETs.
 
-**This project** (`profile.json` → `permissions`). `surveys/permissions.py` and
-`expenses/permissions.py` are the reference shape. Note that
-`accounts-design.md` documents a `has_app_access` helper that checks groups
-directly: do **not** use it for gating. Its `grant_app_access` /
-`revoke_app_access` counterparts stay in use for the grant side.
+**This project** (`profile.json` → `permissions`). Read `reference_impls` for the
+existing `permissions.py` modules to copy the shape from. Check `known_deviation`
+too: a project can carry a design doc or helper that checks groups directly, and
+the profile names it so you do not follow it by accident. Grant-side helpers
+(`grant_app_access` / `revoke_app_access` and similar) are unaffected: it is the
+read path that must go through `has_perm`.
 
 ### Secrets are encrypted at rest from the first commit
 
@@ -230,12 +231,13 @@ follow-up landed.
   is not.
 - Never signal production through a truthy string check on an env var. `DEBUG="0"`
   and `DEBUG="False"` are both truthy in Python, so parse the value explicitly.
-- When work produces a secret the human has to keep, tell them to store it in
-  **1Password**. Do not suggest Notion, a wiki, or a repo file, even when older
-  project docs say otherwise.
+- When work produces a secret the human has to keep, name the password manager the
+  project has standardised on (`profile.json` → `secrets.human_storage`). Do not
+  suggest a wiki, a notes app, or a repo file, even when older project docs do.
 
-**This project** (`profile.json` → `secrets`). `availability.encryption.EncryptedTextField`
-backed by `cryptography.Fernet`, with `FERNET_KEY` required when `DEBUG` is off.
+**This project** (`profile.json` → `secrets`). `field_class` names the encrypted
+field to reuse and `key_env_var` the key it needs. Adding a second encrypted field
+implementation alongside it is not an improvement.
 
 ### Templates: CSS in a stylesheet, page furniture from shared partials
 
@@ -254,12 +256,11 @@ Repeated page furniture (a list header, a breadcrumb, a marketing hero) lives in
 shared partial that pages include with parameters, not copy-pasted markup. Copy-paste
 is how five apps end up with five slightly different headers.
 
-**This project** (`profile.json` → `frontend`). Rules go in
-`secretcodes/static/brand/secret-codes.css`. Page-level conventions (the
-"Your {things}" list header, arrow-free "All {things}" breadcrumbs, and the
-`_app_landing.html` hero for public landing pages) are specified in the repo's own
-`app-ui-conventions` skill and `docs/conventions/ui-patterns.md`. Follow those when
-building any page; this skill does not restate them.
+**This project** (`profile.json` → `frontend`). Rules go in the stylesheet named by
+`css_location`. Page-level conventions (list headers, breadcrumb wording, the
+landing-page hero) usually live in a project-local skill or doc rather than here:
+`page_conventions` points at it. Read that before building a page, and follow it;
+this skill deliberately does not restate per-project UI rules.
 
 ### Running commands and finishing a change
 
@@ -273,8 +274,8 @@ leave the commit to the human.
   `./venv/bin/python`) or run through the project's container command. Pass env vars
   inline (`SECRET_KEY=test ./venv/bin/pytest`) instead of activating first.
 - **Run the tests after changing code. Do not run the formatters or linters as a
-  local sanity pass.** Mariatta runs `make reformat` and `make lint` on her own
-  schedule, and unrequested formatting output is noise. Fix an obvious syntax-level
+  local sanity pass.** The human runs reformat and lint on their own schedule, and
+  unrequested formatting output is noise in a session. Fix an obvious syntax-level
   break in a file you just wrote; skip repo-wide passes.
 - **Before a PR, lint must actually pass.** CI runs tests **and** lint, so a branch
   with unformatted code fails. When preparing a branch for review, run the autofix

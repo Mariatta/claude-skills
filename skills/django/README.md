@@ -2,8 +2,8 @@
 
 House conventions for writing code in a Django codebase.
 
-Each convention is written as a portable principle plus the specifics of one
-reference build:
+Each convention is written as a portable principle plus a pointer to where this
+project's own values live (`profile.json`):
 
 - **Code style** — match the project's formatters and emit code that already passes
   them. Covers the black/isort/djlint/flake8 stack and the `isort profile = black`
@@ -32,13 +32,13 @@ reference build:
 | `references/email.md` | The email pattern in full, with reference implementation |
 | `references/deployment.md` | Boot contract, dev compose stack, Azure App Service gotchas |
 
-## Reference build
+## The example profile
 
-secretcodes (`mariatta/secretcodes`), verified 2026-08-04. Python 3.13 and 3.14,
-tooling run inside `docker compose run --rm web`, `make lint` / `make reformat` /
-`make test` / `make check` as entry points.
+`profile.json` ships filled in for one plausible stack: Python 3.13 and 3.14, tooling
+run inside `docker compose run --rm web`, `make lint` / `make reformat` / `make test`
+/ `make check` as entry points, and 100% coverage enforced in CI.
 
-## Using it elsewhere
+## Using it on your project
 
 Edit `profile.json` and read `ADAPTING.md`. The most common change by far is swapping
 black, isort, and flake8 for ruff, which keeps djlint and removes the isort/black

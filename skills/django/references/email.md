@@ -39,8 +39,9 @@ once and converting is what guarantees the two parts cannot disagree.
 
 ## Reference implementation
 
-`expenses/services/invitations.py` in secretcodes. `surveys/` follows the same shape,
-so this is the house standard rather than a one-off.
+`profile.json` → `email.reference_impl` names the module to copy from, and
+`second_impl` a second app following the same shape where one exists. Read the real
+file before writing a new email; the sketch below is the shape, not the source.
 
 ```python
 import markdown
@@ -72,13 +73,15 @@ Conventions visible in it worth copying:
   bodies can be tested without sending.
 - Tunables such as expiry windows come from `settings`, not literals.
 
-## Known caveats in the reference build
+## Two failure modes to check before writing email code
 
-Both are real in secretcodes today. They are documented rather than silently worked
-around, because fixing them is Mariatta's call. If you are writing new email code,
-know about them; if you are asked to fix them, this is the context.
+This pattern has two sharp edges, and an existing implementation may well have
+either. Check both against the project rather than assuming, and if one is present,
+say so instead of silently working around it: whether to fix it is the owner's call,
+and the fix touches shipped email. `profile.json` → `email` records which state the
+project is in via `text_autoescape_off` and `sanitizer_used_by_email_path`.
 
-### 1. Plain-text bodies are rendered with autoescape on
+### 1. Plain-text bodies rendered with autoescape on
 
 `render_to_string` escapes by default, and the Markdown templates do not wrap
 themselves in `{% autoescape off %}`. So a context value containing an apostrophe,
@@ -87,20 +90,21 @@ ampersand, or angle bracket reaches the plain-text part as an HTML entity. A nam
 
 The HTML part is unaffected, which is why this is easy to miss.
 
-The fix is `{% autoescape off %}` around the Markdown template body, but that has to
-be weighed against the second caveat, since turning escaping off on a template whose
-output is then converted to HTML changes the injection surface.
+The fix is `{% autoescape off %}` around the Markdown template body, but it cannot be
+made in isolation: turning escaping off on a template whose output is then converted
+to HTML changes the injection surface. See the second failure mode.
 
-### 2. The HTML path runs markdown without the sanitizer
+### 2. Markdown run on user-controlled text without a sanitizer
 
-`markdown.markdown(...)` is called directly on text containing user-controlled values
-(display names, event names). The project already has a bleach-based
-`safe_markdown` filter at `surveys/templatetags/survey_extras.py` with a tag
-whitelist, and the email path does not use it.
+`markdown.markdown(...)` called on a body that interpolates user-supplied values
+(display names, event titles) will faithfully turn whatever they contain into HTML.
+If the project has a sanitizer, typically a bleach-backed `safe_markdown` filter with
+a tag whitelist, the email path should route through it.
+`profile.json` → `email.sanitizer_available` records whether one exists.
 
-With autoescape currently on, escaping happens to blunt this. That means the two
-caveats are coupled: fixing caveat 1 without also routing through the sanitizer would
-make caveat 2 materially worse. Treat them as one change, not two.
+The two are coupled. Where autoescape is still on, escaping happens to blunt this,
+so turning it off without also routing through the sanitizer makes the second problem
+materially worse. Treat them as one change, not two.
 
 ## When adding a new email
 

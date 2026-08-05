@@ -1,7 +1,7 @@
 {
-  "_note": "secretcodes reference build, verified 2026-08-04. These are project-specific choices; edit them for your project. Portable principles live in SKILL.md and do not belong here. See ADAPTING.md.",
+  "_note": "Example profile, shaped after a real Django project. Every value here is a project-specific choice: replace them with your own. Portable principles live in SKILL.md and do not belong here. See ADAPTING.md.",
 
-  "project_name": "secretcodes",
+  "project_name": "<your project>",
   "python_versions": ["3.13", "3.14"],
   "runner": "docker compose run --rm web",
 
@@ -55,23 +55,23 @@
   "permissions": {
     "gate_with": "user.has_perm(\"app.codename\") / {% if perms.app.codename %}",
     "never": "user.groups.filter(name=...).exists()",
-    "reference_impls": ["surveys/permissions.py", "expenses/permissions.py"],
-    "known_deviation": "accounts-design.md has_app_access checks groups directly; not for gating, grant_app_access/revoke_app_access stay for granting",
+    "reference_impls": ["<app>/permissions.py"],
+    "known_deviation": "name any design doc or helper in this project that checks groups directly, so it is not followed by accident; grant-side helpers are unaffected",
     "object_level": "can_access_<thing>(user, obj) checking owner_id / collaborators is a data-model check and is fine"
   },
 
   "secrets": {
     "encrypt_at_rest": true,
-    "field_class": "availability.encryption.EncryptedTextField (cryptography.Fernet)",
+    "field_class": "<app>.encryption.EncryptedTextField, backed by cryptography.Fernet",
     "key_env_var": "FERNET_KEY",
     "key_required_when": "DEBUG off; derived from SECRET_KEY in DEBUG for dev convenience",
-    "human_storage": "1Password (never Notion, even where older project docs say so)"
+    "human_storage": "1Password (name yours here; do not suggest a wiki or notes app, even where older project docs do)"
   },
 
   "frontend": {
-    "css_location": "secretcodes/static/brand/secret-codes.css",
+    "css_location": "<project>/static/<brand>/<name>.css",
     "inline_style_blocks": "not allowed in templates",
-    "page_conventions": "repo's own app-ui-conventions skill + docs/conventions/ui-patterns.md",
+    "page_conventions": "the project-local UI skill or doc, if any; null when the project has none",
     "shared_partials": ["_app_landing.html", "_subnav.html", "_board_nav.html"]
   },
 
@@ -87,7 +87,7 @@
     "boot_contract": "entrypoint runs migrate then gunicorn on $PORT; whitenoise serves static",
     "host_specific_seam": ".github/workflows/deploy.yml only",
     "dev_services": "docker compose postgres + redis on per-project host ports, never host Postgres",
-    "reference_docs": ["https://docs.secretcodes.dev/deployment/azure/", "docs/deployment/azure.md", "docs/deployment/migration.md"]
+    "reference_docs": ["docs/deployment/<host>.md", "docs/deployment/migration.md"]
   },
 
   "email": {
@@ -96,10 +96,10 @@
     "markdown_lib": "markdown",
     "markdown_extensions": ["extra"],
     "wrapper": "per-email <app>/email/<name>.html, injects {{ body|safe }}",
-    "sanitizer_available": "surveys.templatetags.survey_extras.safe_markdown (bleach; whitelist p br strong em a code ul ol li)",
+    "sanitizer_available": "<app>.templatetags.<module>.safe_markdown (bleach; whitelist p br strong em a code ul ol li), or false",
     "sanitizer_used_by_email_path": false,
     "text_autoescape_off": false,
-    "reference_impl": "expenses/services/invitations.py",
-    "second_impl": "surveys/"
+    "reference_impl": "<app>/services/invitations.py",
+    "second_impl": "a second app following the same shape, if one exists"
   }
 }

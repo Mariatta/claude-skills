@@ -6,9 +6,10 @@ The app should be able to change hosts without a rewrite. That holds as long as
 exactly one thing knows the provider's name: the deploy workflow. The image, the
 entrypoint, and the settings module stay generic.
 
-Source of the gotchas below: the secretcodes Azure migration
-(https://docs.secretcodes.dev/deployment/azure/), re-verified on castaway-dj. Both
-run a container from a registry on Azure App Service, and both hit the same walls.
+The gotchas below were collected across two Django deployments to Azure App Service,
+both running a container pulled from a registry, and both hitting the same walls in
+the same order. `profile.json` → `deployment.reference_docs` points at whatever the
+project has written down.
 
 ## The boot contract
 
