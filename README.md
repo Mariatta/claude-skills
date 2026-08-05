@@ -2,15 +2,27 @@
 
 A collection of custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) slash commands for automating complex tasks.
 
-## What are Claude Code skills?
+This repo holds two different things, installed to two different places.
 
-Claude Code supports custom slash commands — markdown files that act as prompt templates. When you type `/command-name` in a Claude Code session, it loads the corresponding markdown file and uses it as instructions. This lets you automate multi-step workflows with a single command.
+## Commands vs skills
 
-## Available skills
+**Commands** are markdown files that act as prompt templates. You invoke one by typing `/command-name` in a Claude Code session, and it loads that file as instructions. They live in `commands/` and install to `~/.claude/commands/`.
+
+**Skills** are folders containing a `SKILL.md` with YAML frontmatter, optionally alongside reference files, scripts, and assets. You do not invoke a skill; Claude loads it on its own when the `description` in the frontmatter matches what you are doing. They live in `skills/` and install to `~/.claude/skills/`.
+
+Rule of thumb: a command is something you ask for, a skill is something Claude should already know.
+
+## Available commands
 
 | Command | Description |
 |---------|-------------|
 | `/new-trip` | Generate a complete travel planner website (Astro + GitHub Pages) with itineraries, maps, budget tracker, expense logging, charts, PWA support, and more |
+
+## Available skills
+
+| Skill | Description |
+|-------|-------------|
+| `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
 
 ## Installation
 
@@ -22,15 +34,16 @@ cd claude-skills
 ./install.sh
 ```
 
-The install script creates symlinks from this repo's `commands/` directory into `~/.claude/commands/`. Since they're symlinks, pulling updates from the repo automatically updates your commands — no reinstall needed.
+The install script symlinks `commands/*.md` into `~/.claude/commands/` and each `skills/*/` directory into `~/.claude/skills/`. Since they're symlinks, pulling updates from the repo automatically updates both — no reinstall needed.
 
 ### Manual install
 
-If you prefer, copy individual command files into `~/.claude/commands/`:
+If you prefer, copy them yourself:
 
 ```bash
-mkdir -p ~/.claude/commands
+mkdir -p ~/.claude/commands ~/.claude/skills
 cp commands/new-trip.md ~/.claude/commands/
+cp -r skills/django ~/.claude/skills/
 ```
 
 ## Usage
@@ -99,16 +112,16 @@ After the site is generated, you can customize it further through conversation:
 - Change the color theme
 - Add new features
 
-## Adding your own skills
+## Adding your own
 
-1. Create a markdown file in the `commands/` directory
+### A command
+
+1. Create a markdown file in `commands/`
 2. Use `$ARGUMENTS` as a placeholder for user input
 3. Run `./install.sh` to symlink it
 
-Example structure for a new skill:
-
 ```markdown
-# My Custom Skill
+# My Custom Command
 
 Do something based on: $ARGUMENTS
 
@@ -116,6 +129,25 @@ Do something based on: $ARGUMENTS
 
 Describe what Claude should do step by step...
 ```
+
+### A skill
+
+1. Create a directory in `skills/` containing a `SKILL.md`
+2. Give it YAML frontmatter with `name` and `description`. The description is the only thing Claude sees when deciding whether to load the skill, so it should say both what the skill does and when to use it
+3. Run `./install.sh` to symlink it
+
+```markdown
+---
+name: my-skill
+description: What this does, and the situations it applies to. Use whenever <specific contexts>, even if the request does not mention them explicitly.
+---
+
+# My Skill
+
+...
+```
+
+Keep `SKILL.md` short and put long detail in `references/`, linked from `SKILL.md` with a note about when to read it.
 
 ## Updating
 
@@ -132,7 +164,10 @@ Remove the symlinks:
 
 ```bash
 ls -la ~/.claude/commands/  # Check which are symlinks
-rm ~/.claude/commands/new-trip.md  # Remove specific command
+rm ~/.claude/commands/new-trip.md  # Remove a specific command
+
+ls -la ~/.claude/skills/
+rm ~/.claude/skills/django  # Remove a specific skill
 ```
 
 ## License
