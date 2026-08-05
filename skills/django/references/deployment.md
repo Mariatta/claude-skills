@@ -45,7 +45,8 @@ the existing value; store it in 1Password.
 ### `.dockerignore` is mandatory
 
 Without it, `.env`, `.venv`, and any `client_secret_*.json` land inside the image.
-Write it in the same commit as the Dockerfile, not after the first build.
+Write it in the same commit as the Dockerfile, not after the first build. The
+`gitignore` skill's `references/templates.md` has a matching block.
 
 ### Registry and platform details
 

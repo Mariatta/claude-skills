@@ -23,6 +23,7 @@ None right now. `/new-trip` used to live here; it only ever made sense inside th
 | Skill | Description |
 |-------|-------------|
 | `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
+| `gitignore` | What never belongs in version control: the always-ignore baseline led by environment and secret files, the files people wrongly ignore (lockfiles, migrations, `.env.example`), the fact that `.gitignore` does not untrack anything, and rotating a credential that reached a commit |
 
 ## Installation
 
@@ -47,11 +48,17 @@ cp -r skills/django ~/.claude/skills/
 
 ## Usage
 
+Nothing to type for either one. Claude loads a skill when what you are doing matches its `description`.
+
 ### `django`
 
-Nothing to type. Claude loads it when it notices you are working in a Django project, and follows the conventions in `skills/django/SKILL.md`.
+Loads when you are working in a Django project, and applies the conventions in `skills/django/SKILL.md`.
 
 To point it at a project whose stack differs from the reference build, edit `skills/django/profile.json` and read `skills/django/ADAPTING.md`. Every project-specific value lives in the profile, so the conventions themselves stay portable.
+
+### `gitignore`
+
+Loads when a repository is being set up, a `.gitignore` or `.dockerignore` is being written, files are being staged, or a file holding credentials is created. `skills/gitignore/references/templates.md` has paste-ready blocks per ecosystem.
 
 ## Adding your own
 
