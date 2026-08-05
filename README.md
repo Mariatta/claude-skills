@@ -1,8 +1,10 @@
 # Claude Skills
 
-A collection of custom [Claude Code](https://docs.anthropic.com/en/docs/claude-code) slash commands for automating complex tasks.
+Reusable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and commands.
 
-This repo holds two different things, installed to two different places.
+Everything here is **generic**: it applies across projects rather than to one repo. Anything that only makes sense inside a single codebase belongs in that codebase's own `.claude/skills/` or `.claude/commands/`, where Claude Code picks it up automatically when you work there.
+
+The repo holds two kinds of thing, installed to two different places.
 
 ## Commands vs skills
 
@@ -14,9 +16,7 @@ Rule of thumb: a command is something you ask for, a skill is something Claude s
 
 ## Available commands
 
-| Command | Description |
-|---------|-------------|
-| `/new-trip` | Generate a complete travel planner website (Astro + GitHub Pages) with itineraries, maps, budget tracker, expense logging, charts, PWA support, and more |
+None right now. `/new-trip` used to live here; it only ever made sense inside the [mariatta-travels](https://github.com/Mariatta/mariatta-travels) monorepo, so it lives there now as a project command.
 
 ## Available skills
 
@@ -42,77 +42,22 @@ If you prefer, copy them yourself:
 
 ```bash
 mkdir -p ~/.claude/commands ~/.claude/skills
-cp commands/new-trip.md ~/.claude/commands/
 cp -r skills/django ~/.claude/skills/
 ```
 
 ## Usage
 
-### `/new-trip` — Trip planner generator
+### `django`
 
-Creates a full-featured travel planning website as a static Astro site. The generated site includes:
+Nothing to type. Claude loads it when it notices you are working in a Django project, and follows the conventions in `skills/django/SKILL.md`.
 
-- Day-by-day itinerary for each city with links and maps
-- Hotel and restaurant recommendations with ratings
-- Interactive maps (Leaflet + OpenStreetMap)
-- Planning checklist with progress tracking
-- Budget tracker with multi-currency support and Chart.js charts
-- Expense logging with edit/delete and import/export
-- Progressive Web App (installable on phone, works offline)
-- Responsive design with country-themed colors
-
-#### Examples
-
-**Basic — just a country:**
-```
-/new-trip Japan
-```
-Claude will suggest cities, use default dates (14 nights), and ask for your departure airport.
-
-**With cities and dates:**
-```
-/new-trip Italy — Rome, Florence, Venice. 10 nights, June 15–25, 2027
-```
-
-**Solo trip with a conference:**
-```
-/new-trip South Korea — solo, Seoul and Busan. PyCon Korea Oct 14–15 in Seoul. Oct 10–20, 2027
-```
-
-**Couple's trip with a theme:**
-```
-/new-trip France — couple, Paris, Lyon, Nice. Food tour focus. Sep 2027. Flying from Toronto (YYZ).
-```
-
-**Family trip:**
-```
-/new-trip Spain — family of 4, Barcelona, Madrid, Seville. Jul 5–19, 2027. Home currency: CAD.
-```
-
-#### What you can specify
-
-| Parameter | Default | Example |
-|-----------|---------|---------|
-| Country | *(required)* | Japan, Italy, Taiwan |
-| Cities | Auto-suggested | Tokyo, Kyoto, Osaka |
-| Dates | 14 nights | Jun 15–25, 2027 |
-| Travelers | Solo | family of 4, couple, group of 6 |
-| Departure airport | *(asked)* | YVR, YYZ, SFO, LAX |
-| Events | None | PyCon Korea Oct 14–15 |
-| Trip theme | General | food tour, adventure, relaxation |
-| Home currency | USD | CAD, GBP, AUD |
-
-#### Customization
-
-After the site is generated, you can customize it further through conversation:
-
-- Add/remove cities or days
-- Adjust budget estimates
-- Add specific restaurants or activities
-- Change the color theme
-- Add new features
+To point it at a project whose stack differs from the reference build, edit `skills/django/profile.json` and read `skills/django/ADAPTING.md`. Every project-specific value lives in the profile, so the conventions themselves stay portable.
 
 ## Adding your own
+
+First question: does it apply to more than one project? If it names a specific repo's files, apps, or data model, it belongs in that repo's `.claude/` directory instead, where it is versioned with the code it describes and loads automatically when you work there.
+
+If it is genuinely generic, and project-specific values can be isolated (the way `django` puts them all in `profile.json`), it goes here.
 
 ### A command
 
@@ -164,7 +109,7 @@ Remove the symlinks:
 
 ```bash
 ls -la ~/.claude/commands/  # Check which are symlinks
-rm ~/.claude/commands/new-trip.md  # Remove a specific command
+rm ~/.claude/commands/<name>.md  # Remove a specific command
 
 ls -la ~/.claude/skills/
 rm ~/.claude/skills/django  # Remove a specific skill
