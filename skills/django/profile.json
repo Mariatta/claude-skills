@@ -1,0 +1,105 @@
+{
+  "_note": "Example profile, shaped after a real Django project. Every value here is a project-specific choice: replace them with your own. Portable principles live in SKILL.md and do not belong here. See ADAPTING.md.",
+
+  "project_name": "<your project>",
+  "python_versions": ["3.13", "3.14"],
+  "runner": "docker compose run --rm web",
+
+  "formatting": {
+    "stack": ["black", "isort", "djlint", "flake8"],
+    "effective_line_length": 88,
+    "config_locations": {
+      "black": "none (runs on defaults; do not add [tool.black])",
+      "isort": "setup.cfg [isort]: profile=black, skip_gitignore=true",
+      "flake8": "setup.cfg [flake8]: max-line-length=100, extend-ignore=E501",
+      "djlint": "pyproject.toml [tool.djlint]: profile=django, ignore=H006,H021,H030,H031, custom_blocks=switch, line_break_after_multiline_tag=true"
+    },
+    "commands": {
+      "check": "make lint",
+      "fix": "make reformat",
+      "check_all": "make check"
+    },
+    "extra_lint_steps": ["python manage.py makemigrations --check"]
+  },
+
+  "imports": {
+    "policy": "top-of-module only; refactor circular imports rather than dodging them inline",
+    "accepted_inline_exceptions": [
+      "manage.py guard",
+      "optional or heavy dependency behind a feature check"
+    ]
+  },
+
+  "docs": {
+    "function_docs": "triple-quoted docstring as the first statement; # comments only inline within a body",
+    "empty_init_files": "give them a one-line module docstring instead of leaving them zero-byte"
+  },
+
+  "dependencies": {
+    "policy": "prefer a maintained library over hand-rolled equivalents; flag openly when none fits",
+    "maintained_means": "release within ~2 years and current Django major supported",
+    "examples_adopted": ["django-solo", "django-timezone-field"]
+  },
+
+  "tests": {
+    "runner": "pytest",
+    "command": "make test",
+    "rebuild_command": "make test-rebuild",
+    "coverage_threshold": 100,
+    "coverage_enforced_in_ci": true,
+    "testpaths": ["tests"],
+    "config_location": "pyproject.toml [tool.pytest.ini_options]",
+    "speed_flags": ["--reuse-db", "--no-migrations"]
+  },
+
+  "permissions": {
+    "gate_with": "user.has_perm(\"app.codename\") / {% if perms.app.codename %}",
+    "never": "user.groups.filter(name=...).exists()",
+    "reference_impls": ["<app>/permissions.py"],
+    "known_deviation": "name any design doc or helper in this project that checks groups directly, so it is not followed by accident; grant-side helpers are unaffected",
+    "object_level": "can_access_<thing>(user, obj) checking owner_id / collaborators is a data-model check and is fine"
+  },
+
+  "secrets": {
+    "encrypt_at_rest": true,
+    "field_class": "<app>.encryption.EncryptedTextField, backed by cryptography.Fernet",
+    "key_env_var": "FERNET_KEY",
+    "key_required_when": "DEBUG off; derived from SECRET_KEY in DEBUG for dev convenience",
+    "human_storage": "1Password (name yours here; do not suggest a wiki or notes app, even where older project docs do)"
+  },
+
+  "frontend": {
+    "css_location": "<project>/static/<brand>/<name>.css",
+    "inline_style_blocks": "not allowed in templates",
+    "page_conventions": "the project-local UI skill or doc, if any; null when the project has none",
+    "shared_partials": ["_app_landing.html", "_subnav.html", "_board_nav.html"]
+  },
+
+  "workflow": {
+    "activate_venv": "never; call ./venv/bin/<tool> directly or use the container runner",
+    "local_loop": "run tests; do not run formatters or linters as a sanity pass",
+    "before_pr": "autofix then check, because CI runs tests and lint",
+    "git": "stage only; never commit, push, or open a PR unless explicitly asked"
+  },
+
+  "deployment": {
+    "target": "Azure App Service, container pulled from GHCR",
+    "boot_contract": "entrypoint runs migrate then gunicorn on $PORT; whitenoise serves static",
+    "host_specific_seam": ".github/workflows/deploy.yml only",
+    "dev_services": "docker compose postgres + redis on per-project host ports, never host Postgres",
+    "reference_docs": ["docs/deployment/<host>.md", "docs/deployment/migration.md"]
+  },
+
+  "email": {
+    "enabled": true,
+    "template_path": "<app>/templates/<app>/email/",
+    "markdown_lib": "markdown",
+    "markdown_extensions": ["extra"],
+    "wrapper": "per-email <app>/email/<name>.html, injects {{ body|safe }}",
+    "sanitizer_available": "<app>.templatetags.<module>.safe_markdown (bleach; whitelist p br strong em a code ul ol li), or false",
+    "sanitizer_used_by_email_path": false,
+    "text_autoescape_off": false,
+    "reference_impl": "<app>/services/invitations.py",
+    "second_impl": "a second app following the same shape, if one exists"
+  }
+}

@@ -11,13 +11,16 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 COMMANDS_SRC="$SCRIPT_DIR/commands"
 COMMANDS_DST="$HOME/.claude/commands"
+SKILLS_SRC="$SCRIPT_DIR/skills"
+SKILLS_DST="$HOME/.claude/skills"
 
-# Create the destination directory if it doesn't exist
+# Create the destination directories if they don't exist
 mkdir -p "$COMMANDS_DST"
+mkdir -p "$SKILLS_DST"
 
 echo "Installing claude-skills..."
-echo "  Source: $COMMANDS_SRC"
-echo "  Target: $COMMANDS_DST"
+echo "  Commands: $COMMANDS_SRC -> $COMMANDS_DST"
+echo "  Skills:   $SKILLS_SRC -> $SKILLS_DST"
 echo ""
 
 count=0
@@ -57,5 +60,41 @@ else
 fi
 
 echo ""
+
+# Skills are directories, not single files, so they are symlinked whole.
+skill_count=0
+if [ -d "$SKILLS_SRC" ]; then
+  for dir in "$SKILLS_SRC"/*/; do
+    [ -d "$dir" ] || continue
+    [ -f "$dir/SKILL.md" ] || continue
+    name="$(basename "$dir")"
+    target="$SKILLS_DST/$name"
+
+    if [ -L "$target" ]; then
+      echo "  Updating skill: $name (replacing existing symlink)"
+      rm "$target"
+    elif [ -d "$target" ]; then
+      echo "  Skipping skill: $name (directory already exists and is not a symlink)"
+      echo "                 Remove it manually if you want to use the version from this repo:"
+      echo "                 rm -r $target"
+      continue
+    else
+      echo "  Installing skill: $name"
+    fi
+
+    ln -s "${dir%/}" "$target"
+    skill_count=$((skill_count + 1))
+  done
+fi
+
+if [ $skill_count -eq 0 ]; then
+  echo "No new skills installed."
+else
+  echo "Installed $skill_count skill(s)."
+  echo ""
+  echo "Skills load automatically when relevant — there is no slash command to type."
+fi
+
+echo ""
 echo "Since these are symlinks, pulling updates from the repo"
-echo "will automatically update your commands — no reinstall needed."
+echo "will automatically update your commands and skills — no reinstall needed."
