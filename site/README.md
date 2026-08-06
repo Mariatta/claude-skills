@@ -51,14 +51,14 @@ the theme ships them because every named export has to exist.
 
 ## Where it is published
 
-A GitHub project page: `mariatta.github.io/claude-skills/`, deployed by
+`https://claude-skills.mariatta.ca`, a GitHub Pages site deployed by
 `.github/workflows/docs.yml` on pushes to `main` that touch `skills/` or `site/`.
 
-That is a subpath, which the theme handles as of **0.9.0**: `base` is set in
-`astro.config.mjs` and the theme prefixes its own links, the hrefs in
-`popular.config.ts`, and links inside Markdown bodies. Nothing here needs to know
-the base, so `sync-skills.mjs` writes plain site-absolute links like
-`/django-email/`.
+The domain lives in two places, and both are required: `public/CNAME`, which lands in
+the build output and is what GitHub Pages reads, and `site` in `astro.config.mjs`,
+which is what canonical URLs, the sitemap and `llms.txt` are built from.
 
-To serve from a domain root instead, delete `base` from `astro.config.mjs` and point
-`site` at the domain. Nothing else changes.
+Because it serves from a domain root there is no `base`. To publish at a GitHub
+project page instead (`mariatta.github.io/claude-skills/`), delete `public/CNAME`, set
+`base: '/claude-skills'` and point `site` at `https://mariatta.github.io`. The theme
+has been base-aware since 0.9.0, so nothing else changes.

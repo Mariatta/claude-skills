@@ -67,8 +67,8 @@ verbatim, frontmatter and all, so reading it by URL gives the same text an insta
 skill provides:
 
 ```
-https://mariatta.github.io/claude-skills/raw/django/SKILL.md
-https://mariatta.github.io/claude-skills/raw/gitignore/SKILL.md
+https://claude-skills.mariatta.ca/raw/django/SKILL.md
+https://claude-skills.mariatta.ca/raw/gitignore/SKILL.md
 ```
 
 Swap the filename for `ADAPTING.md`, `profile.json`, or anything under `references/`.

@@ -2,12 +2,11 @@ import { defineConfig } from 'astro/config';
 import mdx from '@astrojs/mdx';
 import popular from 'astro-theme-popular';
 
-// Published as a GitHub project page, so the site lives under a subpath. The
-// theme has been base-aware since 0.9.0: it prefixes its own links, adopter
-// config hrefs, and links inside Markdown bodies. Drop `base` for a domain root.
+// Served from the root of its own domain (public/CNAME), so no `base`. For a
+// GitHub project page instead, set base: '/claude-skills' and point `site` at
+// https://mariatta.github.io; the theme has been base-aware since 0.9.0.
 export default defineConfig({
-  site: 'https://mariatta.github.io',
-  base: '/claude-skills',
+  site: 'https://claude-skills.mariatta.ca',
   integrations: [
     mdx(),
     popular({

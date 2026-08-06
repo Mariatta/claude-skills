@@ -86,7 +86,7 @@ If you only want an agent to follow a skill once, point it at the raw file rathe
 than installing:
 
 ```
-https://mariatta.github.io/claude-skills/raw/django/SKILL.md
+https://claude-skills.mariatta.ca/raw/django/SKILL.md
 ```
 
 Every skill file is served verbatim at `/raw/<skill>/<file>`, frontmatter included.
