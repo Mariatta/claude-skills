@@ -135,6 +135,10 @@ The skill is designed to grow. To add one:
 2. If it has real implementation detail, put that in `references/<name>.md` and link
    it from SKILL.md with a line telling Claude when to read it.
 3. Put any project-specific values in `profile.json` rather than inline in SKILL.md.
+4. Write it so a person can follow it by hand. A convention that works only because
+   an agent is reading it is not finished: state the rule, then the reason, in prose
+   someone can act on without the agent. If you cannot explain it that way, the
+   convention is not yet understood well enough to be written down.
 
 Good candidates that are deliberately not covered yet: settings and environment
 handling, migration review, admin conventions, and view/service layering.

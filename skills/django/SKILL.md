@@ -5,8 +5,14 @@ description: House conventions for writing code in a Django codebase: formatter 
 
 # Django conventions
 
-Follow these by default. A project's own `CLAUDE.md`, `AGENTS.md`, or an explicit
-user instruction overrides them.
+These are one developer's house rules for their own Django projects. They are not
+Django community consensus, and they are not binding on anyone else's codebase.
+
+**When contributing to a project you do not own, that project wins.** Its `CLAUDE.md`
+or `AGENTS.md`, its existing code, its reviewers, and any explicit instruction all
+take precedence over anything here, and where they are silent the surrounding code is
+the better guide. Follow these by default on the owner's own projects; treat them as
+a starting point everywhere else.
 
 Each convention below states a **principle** that holds for any Django project,
 then the **concrete values** for this one. Every concrete value (which formatters,

@@ -1,0 +1,16 @@
+{
+  "name": "claude-skills-docs",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-skills.mjs",
+    "dev": "npm run sync && astro dev",
+    "build": "npm run sync && astro build",
+    "preview": "astro preview"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.2",
+    "astro": "^7.0.6",
+    "astro-theme-popular": "^0.9.1"
+  }
+}
