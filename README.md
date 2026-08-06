@@ -1,6 +1,10 @@
-# Claude Skills
+# Mariatta's Claude Skills
 
 Reusable [Claude Code](https://docs.anthropic.com/en/docs/claude-code) skills and commands.
+
+## Written for an agent, readable by a person
+
+This is the rule the whole repo follows. If something is written for an agent, or works because an agent reads it, a person has to be able to read the same thing and do it themselves. Every rule here is prose with its reasons attached rather than machine instructions, and the [docs site](#docs-site) publishes the exact files Claude loads, not a summary of them. There is no agent-only version and no human-only version.
 
 Everything here is **generic**: it applies across projects rather than to one repo. Anything that only makes sense inside a single codebase belongs in that codebase's own `.claude/skills/` or `.claude/commands/`, where Claude Code picks it up automatically when you work there.
 
@@ -66,6 +70,8 @@ First question: does it apply to more than one project? If it names a specific r
 
 If it is genuinely generic, and project-specific values can be isolated (the way `django` puts them all in `profile.json`), it goes here.
 
+Then write it so a person can follow it by hand: state the rule, then the reason, in prose someone could act on with no agent involved. A convention that works only because a machine is reading it is not finished.
+
 ### A command
 
 1. Create a markdown file in `commands/`
@@ -106,9 +112,12 @@ Keep `SKILL.md` short and put long detail in `references/`, linked from `SKILL.m
 ```bash
 cd claude-skills
 git pull
+./install.sh
 ```
 
-That's it — the symlinks mean your commands are always up to date.
+`git pull` is enough for skills you already have: they are symlinked into `~/.claude/`, so an update to a file is live immediately, with no second copy to refresh.
+
+Re-running `./install.sh` is what picks up skills **added** since you installed. Without it, the new files sit in the clone with nothing in `~/.claude/skills/` pointing at them, so Claude never sees them. The script is idempotent, so running both every time is the habit worth having.
 
 ## Uninstalling
 
@@ -122,6 +131,12 @@ ls -la ~/.claude/skills/
 rm ~/.claude/skills/django  # Remove a specific skill
 ```
 
+## Docs site
+
+The skills are also published as a site, generated from the same Markdown Claude
+loads, so there is no second copy to keep in sync. See [`site/`](site/README.md)
+to run it locally.
+
 ## License
 
-MIT
+MIT. See [LICENSE](LICENSE).
