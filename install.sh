@@ -61,6 +61,16 @@ fi
 
 echo ""
 
+# A skill that was renamed or folded into another leaves a symlink pointing at a
+# directory that no longer exists, and Claude keeps trying to load it. Clear those
+# first; only ever links, never real directories someone put there themselves.
+for target in "$SKILLS_DST"/*; do
+  if [ -L "$target" ] && [ ! -e "$target" ]; then
+    echo "  Removing stale skill link: $(basename "$target")"
+    rm "$target"
+  fi
+done
+
 # Skills are directories, not single files, so they are symlinked whole.
 skill_count=0
 if [ -d "$SKILLS_SRC" ]; then

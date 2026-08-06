@@ -35,7 +35,7 @@ and is not a symlink, it says so and skips it, and you decide what to do.
 ls -l ~/.claude/skills/
 ```
 
-You should see `django` and `gitignore` pointing into your clone. There is nothing to
+You should see `django` and `git` pointing into your clone. There is nothing to
 type in Claude Code and no command to run: a skill loads on its own when what you are
 doing matches its description. Open a Django project, ask for a change, and the
 conventions apply.

@@ -27,7 +27,7 @@ None right now. `/new-trip` used to live here; it only ever made sense inside th
 | Skill | Description |
 |-------|-------------|
 | `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
-| `gitignore` | What never belongs in version control: the always-ignore baseline led by environment and secret files, the files people wrongly ignore (lockfiles, migrations, `.env.example`), the fact that `.gitignore` does not untrack anything, and rotating a credential that reached a commit |
+| `git` | Working practices for git itself: cutting a branch from a freshly fetched default branch and the squash-merge trap that follows when you do not, rebasing rather than merging main back in, verifying mergeability before review, paired branches across sibling repositories, what must never be committed and what to do when it already has been, and using `git worktree` when two states are needed at once |
 
 ## Installation
 
@@ -54,15 +54,17 @@ cp -r skills/django ~/.claude/skills/
 
 Nothing to type for either one. Claude loads a skill when what you are doing matches its `description`.
 
+### `git`
+
+Loads when a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
+
+`skills/git/references/gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
+
 ### `django`
 
 Loads when you are working in a Django project, and applies the conventions in `skills/django/SKILL.md`.
 
 To point it at a project whose stack differs from the reference build, edit `skills/django/profile.json` and read `skills/django/ADAPTING.md`. Every project-specific value lives in the profile, so the conventions themselves stay portable.
-
-### `gitignore`
-
-Loads when a repository is being set up, a `.gitignore` or `.dockerignore` is being written, files are being staged, or a file holding credentials is created. `skills/gitignore/references/templates.md` has paste-ready blocks per ecosystem.
 
 ## Adding your own
 
@@ -106,6 +108,25 @@ description: What this does, and the situations it applies to. Use whenever <spe
 ```
 
 Keep `SKILL.md` short and put long detail in `references/`, linked from `SKILL.md` with a note about when to read it.
+
+**One skill per domain, not per topic.** Before adding a directory, check whether an existing skill already owns the domain. `django` holds nine conventions in one `SKILL.md`; `git` holds branching, ignoring and worktrees in another. A topic becomes a section under that skill's `## Conventions` or `## Practices`, self-contained, principle first. Splitting the same domain into `git-branching`, `git-commits` and `git-history` would make Claude choose between them at load time, and the choice is usually wrong: someone opening a pull request needs the branching rules and the ignore rules in the same breath.
+
+Add a new skill when the domain is genuinely different (a framework, a language, a tool with its own vocabulary), not when you have more to say about a domain that already has a home.
+
+**Keep `SKILL.md` readable.** When a section grows past what someone would read in one sitting, move the detail into `references/<topic>.md` and leave the principle plus a pointer behind: *"the full lists are in `references/gitignore.md`. Read it before writing an ignore file."* The always-loaded file stays the rules; the reference holds the tables, the templates and the war stories.
+
+**What a skill directory may contain.** Only `SKILL.md` is required; a skill that fits in one file is a complete skill.
+
+| Path | Required | What it is |
+|---|---|---|
+| `SKILL.md` | yes | The skill Claude loads. YAML frontmatter (`name`, `description`) then the prose |
+| `README.md` | no | The human entry point. Its first paragraph becomes the lead on the docs site; the rest is a summary, so it is not published as its own page |
+| `references/*.md` | no | Long detail kept out of the always-loaded file. Add the directory only when you have something to put in it |
+| Other `*.md` / `*.json` siblings | no | Anything the skill references directly, the way `django` keeps its stack values in `profile.json` |
+
+The docs site derives itself from whatever is there (`site/scripts/sync-skills.mjs`), so adding a file is enough to publish it: `SKILL.md` becomes `/<skill>/`, and every sibling or reference becomes `/<skill>-<file>/`. Nothing in `site/` needs editing by hand.
+
+**Renaming or removing a skill** leaves a dangling symlink in `~/.claude/skills/`, and its published page changes address. Re-run `./install.sh`, which removes links whose target no longer exists, and add a redirect if the old URL was shared anywhere.
 
 ## Updating
 
