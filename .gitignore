@@ -15,3 +15,11 @@
 
 # Local Claude Code settings (machine-specific paths)
 .claude/settings.local.json
+
+# Docs site: dependencies, build output, and the pages generated from skills/
+site/node_modules/
+site/dist/
+site/.astro/
+site/src/content/docs/
+site/src/skills.manifest.json
+site/public/raw/
