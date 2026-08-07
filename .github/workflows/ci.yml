@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  ci:                      # this id is the context the branch ruleset requires
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Install
+        working-directory: site
+        run: npm ci
+
+      # Builds the pages from skills/, so a skill file the site cannot render
+      # fails here rather than after it is merged.
+      - name: Build the docs site
+        working-directory: site
+        run: npm run build
+
+      - name: Check install.sh parses
+        run: bash -n install.sh
+
+      # Only SKILL.md is required, and its frontmatter is the whole reason a
+      # skill loads: without name and description Claude never picks it up.
+      - name: Check every skill has SKILL.md with frontmatter
+        run: |
+          failed=0
+          for dir in skills/*/; do
+            file="${dir}SKILL.md"
+            if [ ! -f "$file" ]; then
+              echo "::error::${dir} has no SKILL.md"
+              failed=1
+              continue
+            fi
+            head -1 "$file" | grep -qx -- '---' \
+              || { echo "::error file=${file}::does not start with YAML frontmatter"; failed=1; }
+            grep -qE '^name:' "$file" \
+              || { echo "::error file=${file}::frontmatter has no name:"; failed=1; }
+            grep -qE '^description:' "$file" \
+              || { echo "::error file=${file}::frontmatter has no description:"; failed=1; }
+          done
+          exit $failed

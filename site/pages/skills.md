@@ -1,7 +1,7 @@
 ---
 title: "The skills"
 eyebrow: "Read them"
-lead: "Two so far, with more as I keep working alongside agents. Each is a set of house rules Claude applies on its own, written as prose you can follow by hand."
+lead: "A short list so far, with more as I keep working alongside agents. Each is a set of house rules Claude applies on its own, written as prose you can follow by hand."
 weight: 6
 ---
 
@@ -14,9 +14,8 @@ Everything below is the exact file Claude loads, published as-is.
 
 ## django
 
-How **I** like a Django codebase written, in eleven conventions. Each is stated as a
-principle that holds anywhere, followed by a pointer to where a project keeps its own
-values.
+How **I** like a Django codebase written. Each convention is stated as a principle
+that holds anywhere, followed by a pointer to where a project keeps its own values.
 
 These are my preferences for my own projects, not Django community consensus and not
 a style anyone else has to adopt. When I contribute to someone else's codebase, that
@@ -41,16 +40,32 @@ Markdown template · a portable container boot contract.
 - [The email pattern in full](/django-email/)
 - [Deployment](/django-deployment/)
 
-## gitignore
+## git
 
-What never belongs in version control, and what to do when it already got there.
+Working practices for git and the forge around it, independent of what the repository
+contains. The recurring one: where a branch starts decides whether it merges, because
+a squash merge writes a new commit rather than moving yours, so a branch cut from an
+already-merged branch collides with its own work.
 
-The always-ignore baseline led by environment and secret files · the files people
-wrongly ignore, such as lockfiles and migrations · why `.gitignore` does not untrack
-anything · why a committed secret gets rotated rather than merely deleted.
+Creating a repository with the settings it should have had on day one · cut every
+branch from a freshly fetched default branch · rebase rather than merge the default
+branch back in, then `--force-with-lease` · verify mergeability before asking for
+review · paired branches across sibling repositories · reset your position the moment
+something merges · what never belongs in version control, led by environment and
+secret files, and why a committed secret gets rotated rather than merely deleted ·
+worktrees, for when you need two states at once.
 
-- [The rules](/gitignore/)
-- [Paste-ready ignore blocks](/gitignore-templates/) for Python, Django, Node,
+A new repository is asked private or public first, because that answer decides what
+is possible: on GitHub Free, a private repository cannot have rulesets or branch
+protection at all. Then squash-only merges, delete the branch on merge, and a ruleset
+requiring the CI check, added last because a required check that nothing reports
+blocks every merge forever.
+
+- [The practices](/git/)
+- [Creating a repository](/git-new-repo/), end to end, with the ruleset body
+- [The ignore rules](/git-gitignore/), including why `.gitignore` does not untrack
+  anything and which files people wrongly ignore
+- [Paste-ready ignore blocks](/git-gitignore-templates/) for Python, Django, Node,
   Terraform, and `.dockerignore`
 
 ## Pointing an agent at one
@@ -68,7 +83,7 @@ skill provides:
 
 ```
 https://claude-skills.mariatta.ca/raw/django/SKILL.md
-https://claude-skills.mariatta.ca/raw/gitignore/SKILL.md
+https://claude-skills.mariatta.ca/raw/git/SKILL.md
 ```
 
 Swap the filename for `ADAPTING.md`, `profile.json`, or anything under `references/`.

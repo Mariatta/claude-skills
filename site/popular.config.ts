@@ -70,7 +70,7 @@ export const FOOTER = {
     { title: 'Skills', links: [
       { label: 'All skills', href: '/skills/' },
       { label: 'django', href: '/django/' },
-      { label: 'gitignore', href: '/gitignore/' },
+      { label: 'git', href: '/git/' },
     ]},
     { title: 'Repository', links: [
       { label: 'Source', href: 'https://github.com/Mariatta/claude-skills' },
@@ -96,12 +96,12 @@ export const HOME = {
   },
   featuresHead: {
     eyebrow: 'What is here',
-    title: 'Two skills, and counting',
+    title: 'The skills so far, and counting',
     lead: 'More will follow as I keep building with agents. Each is a principle plus a pointer to where a project keeps its own values, so none of them describes a single codebase.',
   },
   features: [
     { icon: 'fa-solid fa-layer-group', title: 'django', body: 'Formatters, imports, docstrings, coverage as a merge gate, permission gating, secrets at rest, email as one Markdown template, and a portable boot contract.' },
-    { icon: 'fa-solid fa-shield-halved', title: 'gitignore', body: 'What never belongs in version control, what people wrongly ignore, and why a committed secret gets rotated rather than merely deleted.' },
+    { icon: 'fa-solid fa-code-branch', title: 'git', body: 'Creating a repository with the settings it should have had on day one, where a branch starts and why it decides whether the pull request merges, worktrees, and what must never reach a commit.' },
     { icon: 'fa-solid fa-arrows-rotate', title: 'Derived, not duplicated', body: 'Every page here is generated from the same Markdown Claude loads, so there is no second copy to drift out of date.' },
   ],
   getInvolved: {
