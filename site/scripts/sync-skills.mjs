@@ -25,7 +25,7 @@
  * through unchanged. They live outside src/content/docs/ because this script
  * empties that directory on every run.
  */
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { basename, dirname, extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -143,7 +143,9 @@ function build() {
       .filter((f) => f !== 'SKILL.md' && f !== 'README.md')
       .filter((f) => ['.md', '.json'].includes(extname(f)))
       .sort();
-    const references = readdirSync(join(dir, 'references'), { withFileTypes: true })
+    /* references/ is optional: a skill that fits in one file has none. */
+    const refDir = join(dir, 'references');
+    const references = (existsSync(refDir) ? readdirSync(refDir, { withFileTypes: true }) : [])
       .filter((e) => e.isFile() && extname(e.name) === '.md')
       .map((e) => join('references', e.name))
       .sort();
