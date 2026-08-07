@@ -1,7 +1,7 @@
 ---
 title: "Installing"
 eyebrow: "Start here"
-lead: "Ten lines of shell, once. After that the skills load themselves and a git pull keeps them current."
+lead: "A clone and one script, once. After that the skills load themselves and a git pull keeps them current."
 weight: 5
 ---
 

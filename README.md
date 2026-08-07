@@ -27,7 +27,7 @@ None right now. `/new-trip` used to live here; it only ever made sense inside th
 | Skill | Description |
 |-------|-------------|
 | `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
-| `git` | Working practices for git itself: cutting a branch from a freshly fetched default branch and the squash-merge trap that follows when you do not, rebasing rather than merging main back in, verifying mergeability before review, paired branches across sibling repositories, what must never be committed and what to do when it already has been, and using `git worktree` when two states are needed at once |
+| `git` | Working practices for git and the forge around it: creating a repository with the settings it should have had on day one (private or public first, squash-only merges, delete the branch on merge, a ruleset requiring the CI check), cutting a branch from a freshly fetched default branch and the squash-merge trap that follows when you do not, rebasing rather than merging main back in, verifying mergeability before review, paired branches across sibling repositories, what must never be committed and what to do when it already has been, and using `git worktree` when two states are needed at once |
 
 ## Installation
 
@@ -56,9 +56,9 @@ Nothing to type for either one. Claude loads a skill when what you are doing mat
 
 ### `git`
 
-Loads when a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
+Loads when a repository is being created, a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
 
-`skills/git/references/gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
+Creating a repository asks private or public first, since on GitHub Free a private repository cannot have rulesets or branch protection at all, and then applies squash-only merges, delete-branch-on-merge, and a ruleset requiring the CI check. `skills/git/references/new-repo.md` has the full sequence and the ruleset body; `gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
 
 ### `django`
 
@@ -109,7 +109,7 @@ description: What this does, and the situations it applies to. Use whenever <spe
 
 Keep `SKILL.md` short and put long detail in `references/`, linked from `SKILL.md` with a note about when to read it.
 
-**One skill per domain, not per topic.** Before adding a directory, check whether an existing skill already owns the domain. `django` holds nine conventions in one `SKILL.md`; `git` holds branching, ignoring and worktrees in another. A topic becomes a section under that skill's `## Conventions` or `## Practices`, self-contained, principle first. Splitting the same domain into `git-branching`, `git-commits` and `git-history` would make Claude choose between them at load time, and the choice is usually wrong: someone opening a pull request needs the branching rules and the ignore rules in the same breath.
+**One skill per domain, not per topic.** Before adding a directory, check whether an existing skill already owns the domain. `django` holds every Django convention in one `SKILL.md`; `git` holds branching, ignoring and worktrees in another. A topic becomes a section under that skill's `## Conventions` or `## Practices`, self-contained, principle first. Splitting the same domain into `git-branching`, `git-commits` and `git-history` would make Claude choose between them at load time, and the choice is usually wrong: someone opening a pull request needs the branching rules and the ignore rules in the same breath.
 
 Add a new skill when the domain is genuinely different (a framework, a language, a tool with its own vocabulary), not when you have more to say about a domain that already has a home.
 

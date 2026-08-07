@@ -7,6 +7,15 @@ import popular from 'astro-theme-popular';
 // https://mariatta.github.io; the theme has been base-aware since 0.9.0.
 export default defineConfig({
   site: 'https://claude-skills.mariatta.ca',
+  // The gitignore skill was folded into git, so the addresses it published under
+  // stopped resolving. A static build turns these into meta-refresh pages, which
+  // is all a static host can do and enough for a URL someone bookmarked.
+  // `/gitignore/` was the whole skill: its rule is now a practice inside `/git/`,
+  // which links on to the lists, so the skill page is the honest destination.
+  redirects: {
+    '/gitignore': '/git/',
+    '/gitignore-templates': '/git-gitignore-templates/',
+  },
   integrations: [
     mdx(),
     popular({
