@@ -1,6 +1,6 @@
 ---
 name: git
-description: Working practices for git itself, independent of what the repository contains. Where a branch starts and why it decides whether a pull request merges cleanly: cut every branch from a freshly fetched default branch, because a branch cut from an already-merged branch conflicts with the squash commit that replaced it, which shows up as conflicts in files nobody touched, as sections duplicated only in the merge result, and as pull requests whose checks never start. Rebasing rather than merging the default branch back in, force-with-lease, checking mergeable state before asking for review, and paired branches across sibling repositories. What must never be committed (secrets and environment files first), that .gitignore does not untrack anything, and that a committed secret gets rotated rather than merely deleted. And working in more than one branch at once with git worktree. Use whenever creating a branch, opening a pull request, resolving a conflict in a file you did not edit, reacting to a pull request whose checks never ran, picking up work right after a merge or a release, initializing a repository, writing a .gitignore or .dockerignore, staging files, creating a file that holds credentials, reacting to a secret that reached a commit, or needing a second branch checked out while the first one is mid-change.
+description: Working practices for git itself and the forge around it, independent of what the repository contains. Creating a repository with the settings it should have had from day one: asking private or public first, because on GitHub Free a private repository cannot have rulesets or branch protection at all, then squash-only merges, deleting the branch on merge, and a ruleset requiring the CI check, added last because a required check nothing reports blocks every merge forever. Where a branch starts and why it decides whether a pull request merges cleanly: cut every branch from a freshly fetched default branch, because a branch cut from an already-merged branch conflicts with the squash commit that replaced it, which shows up as conflicts in files nobody touched, as sections duplicated only in the merge result, and as pull requests whose checks never start. Rebasing rather than merging the default branch back in, force-with-lease, checking mergeable state before asking for review, and paired branches across sibling repositories. What must never be committed (secrets and environment files first), that .gitignore does not untrack anything, and that a committed secret gets rotated rather than merely deleted. And working in more than one branch at once with git worktree. Use whenever creating a repository or setting one up on GitHub, deciding whether a repository is private or public, configuring merge or branch-deletion settings, requiring a status check, creating a branch, opening a pull request, resolving a conflict in a file you did not edit, reacting to a pull request whose checks never ran, picking up work right after a merge or a release, initializing a repository, writing a .gitignore or .dockerignore, staging files, creating a file that holds credentials, reacting to a secret that reached a commit, or needing a second branch checked out while the first one is mid-change.
 ---
 
 # Working with git
@@ -16,6 +16,53 @@ under `references/` and link it from here.
 
 
 ## Practices
+
+### Starting a repository
+
+**Principle.** A repository gets its settings on the day it is created, not the day
+someone is annoyed enough to fix them. Every one of them is a default that decides
+how the rest of these practices behave.
+
+**Ask private or public before anything else.** It is not only a visibility flag: on
+GitHub Free, rulesets and branch protection are **not available on private
+repositories**, and both endpoints answer `403 Upgrade to GitHub Pro or make this
+repository public to enable this feature`. Squash merges and branch deletion work
+either way; the required check is what the answer decides. Never leave the impression
+main is gated when the plan does not allow it.
+
+The order matters, and it is this:
+
+1. **First commit, `.gitignore` before the first `git add`.** Retrofitting it means
+   what you were keeping out is already in history. See the practice below.
+2. **Create the remote** at the visibility you were told.
+3. **Squash only, and delete the branch on merge.**
+4. **A ruleset requiring the CI check**, last, because the check has to exist first.
+
+```bash
+git init -b main                       # .gitignore, README, LICENSE, ci.yml, commit
+gh repo create OWNER/REPO --private --source=. --remote=origin --push   # or --public
+
+gh api -X PATCH repos/OWNER/REPO \
+  -F allow_squash_merge=true -F allow_merge_commit=false \
+  -F allow_rebase_merge=false -F delete_branch_on_merge=true
+```
+
+Use `-F`, not `-f`: `-f` sends the string `"false"`, which is truthy, and the setting
+stays on while the command reports success.
+
+**Squash only is what the next practice assumes.** One commit per pull request on
+main, branch commits replaced rather than moved. **Delete branch on merge** is what
+stops a merged branch becoming the accidental base for the next one.
+
+**The gate goes on last, and its name has to match.** A ruleset requiring a context
+nothing reports blocks every merge forever: the pull request waits on a status that
+can never arrive. So the starter workflow ships in the first commit, its job id is
+the context the ruleset requires, and it triggers `on: pull_request`, because a
+workflow that only runs on push never reports on a pull request at all.
+
+The full sequence, the ruleset body, the plan check, and how to bring an existing
+repository up to the same settings are in `references/new-repo.md`. Read it before
+creating a repository rather than reconstructing the ruleset from memory.
 
 ### Where a branch starts decides whether it merges
 
@@ -206,7 +253,10 @@ What to know before you rely on it:
 
 ## Reference files
 
-- `references/gitignore.md` — the always-ignore and never-ignore lists, and
+- `references/new-repo.md`: creating a repository end to end: the first commit, the
+  visibility question and what it decides, the merge settings, the starter workflow,
+  the ruleset body, and how to verify or undo each one.
+- `references/gitignore.md`: the always-ignore and never-ignore lists, and
   diagnostics for why a file is or is not ignored.
-- `references/gitignore-templates.md` — paste-ready blocks: universal baseline,
+- `references/gitignore-templates.md`: paste-ready blocks: universal baseline,
   Python and Django, Node and frontend, plus the matching `.dockerignore`.
