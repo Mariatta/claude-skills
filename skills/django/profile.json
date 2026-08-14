@@ -52,6 +52,17 @@
     "speed_flags": ["--reuse-db", "--no-migrations"]
   },
 
+  "queries": {
+    "policy": "related data is fetched where the queryset is built; every view that renders a list ships with a query-count test",
+    "detection_local": ["django-debug-toolbar"],
+    "detection_in_tests": "pytest-django django_assert_num_queries, plus a does-not-scale assertion via CaptureQueriesContext",
+    "lazy_load_guard": "django-zen-queries queries_disabled() around template render, or false when the project has none",
+    "query_recorder": "django-perf-rec, or false",
+    "queryset_helpers": "<app>/querysets.py or a Manager method, for shapes needed by three or more call sites",
+    "alerting": "whatever APM the project runs, treated as a backstop rather than as detection",
+    "do_not_add": "a detection package the project has not adopted, as a side effect of fixing one view"
+  },
+
   "permissions": {
     "gate_with": "user.has_perm(\"app.codename\") / {% if perms.app.codename %}",
     "never": "user.groups.filter(name=...).exists()",

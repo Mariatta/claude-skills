@@ -13,6 +13,9 @@ project's own values live (`profile.json`):
 - **Docstrings** — triple-quoted first statement, not a stack of `#` comments.
 - **Dependencies** — check for a maintained library before hand-rolling a pattern.
 - **Tests** — coverage is a merge gate. New code arrives with its tests.
+- **Queries** — an N+1 is caught at write time, not by a production alert. Fetch
+  related data in `get_queryset`, annotate instead of counting per row, and pin the
+  count with a test that fails when it scales with the fixture.
 - **Permissions** — gate on `has_perm`, never on group membership. Groups only grant.
 - **Secrets** — encrypted at rest in the same commit the field appears in.
 - **Templates** — CSS in a stylesheet, repeated page furniture in shared partials.
@@ -29,6 +32,7 @@ project's own values live (`profile.json`):
 | `SKILL.md` | The conventions |
 | `profile.json` | Every project-specific choice, in one editable place |
 | `ADAPTING.md` | What to change to run this on a different project |
+| `references/queries.md` | Spotting an N+1 in a diff, the fix per relation direction, prefetch-cache traps, query-count tests, detection libraries |
 | `references/email.md` | The email pattern in full, with reference implementation |
 | `references/deployment.md` | Boot contract, dev compose stack, Azure App Service gotchas |
 

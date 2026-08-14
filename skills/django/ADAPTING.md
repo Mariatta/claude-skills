@@ -6,7 +6,7 @@ written so the portable principles stand on their own; the profile is where
 project-specific values live, and it is the only file most projects need to touch.
 
 Most projects change **four things**: the formatter stack, the coverage threshold, the
-email paths, and the Python versions. Sections 5 to 8 cover the rest of the profile,
+email paths, and the Python versions. Sections 5 to 9 cover the rest of the profile,
 which usually needs a smaller edit or none at all.
 
 ## 1. Formatter stack (the big one) — `profile.json` → `formatting`
@@ -123,6 +123,31 @@ so usually only `target` and the workflow path change. `references/deployment.md
 mostly Azure App Service specifics: if you deploy elsewhere, keep the boot contract
 and the token-refresh warning, and replace the platform gotchas with your own as you
 hit them.
+
+## 9. Queries — `profile.json` → `queries`
+
+The principle (fetch related data where the queryset is built, and pin the count with a
+test) is portable and does not change. What changes is which detection tools are
+installed, and those should be recorded rather than inferred, because the failure mode
+here is a profiler getting added to `INSTALLED_APPS` as a side effect of fixing one
+view.
+
+- `detection_local`: `django-debug-toolbar` for most projects, `django-silk` where the
+  endpoints that matter are not HTML. Set it to `[]` if nothing is installed, and the
+  convention degrades to reading the queryset and writing the test, which is most of
+  the value anyway.
+- `detection_in_tests`: the fixture name, which differs between pytest-django's
+  `django_assert_num_queries` and Django's own `assertNumQueries`. Projects on the
+  Django test runner should say so here.
+- `lazy_load_guard` and `query_recorder`: `false` unless the project actually has them.
+  Naming a library the project has not adopted is worse than naming none, because it
+  reads as an instruction to use it.
+- `queryset_helpers`: where shared queryset shapes live in your layout. Some projects
+  put them on the Manager, some in a `querysets.py`, some in a service module.
+
+If the project uses `django-auto-prefetch`, say so here, because it changes what a
+missing `prefetch_related` means: the queries get batched anyway, so a query-count test
+passes for a reason that is not visible in the view.
 
 ## Adding your own conventions
 
