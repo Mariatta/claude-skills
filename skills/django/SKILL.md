@@ -1,6 +1,6 @@
 ---
 name: django
-description: House conventions for writing code in a Django codebase: formatter and linter compliance (black, isort, djlint, flake8), imports at module top with real refactors for circular imports, docstrings over comment blocks, maintained libraries over hand-rolled code, full test coverage as a merge gate, permission gating through has_perm, secrets encrypted at rest, templates with no inline style blocks, the single-Markdown-template email pattern that produces both plain-text and HTML parts, and a portable container boot contract for deployment. Use this whenever writing, editing, or reviewing Python, templates, tests, settings, or deployment config in a Django project, even when the request is just "add a view" or "fix this bug" and says nothing about style. Concrete tools, thresholds, and paths come from profile.json; read it before assuming this project uses the same stack.
+description: House conventions for writing code in a Django codebase: formatter and linter compliance (black, isort, djlint, flake8), imports at module top with real refactors for circular imports, docstrings over comment blocks, maintained libraries over hand-rolled code, full test coverage as a merge gate, N+1 queries caught at write time through select_related/prefetch_related in get_queryset and a query-count test rather than waiting for a production alert, permission gating through has_perm, secrets encrypted at rest, templates with no inline style blocks, the single-Markdown-template email pattern that produces both plain-text and HTML parts, and a portable container boot contract for deployment. Use this whenever writing, editing, or reviewing Python, templates, tests, settings, or deployment config in a Django project, even when the request is just "add a view" or "fix this bug" and says nothing about style. Concrete tools, thresholds, and paths come from profile.json; read it before assuming this project uses the same stack.
 ---
 
 # Django conventions
@@ -190,6 +190,49 @@ Practical consequences when adding code here:
 - `make check` runs tests then lint.
 
 
+### Queries: an N+1 is caught at write time, not by a production alert
+
+**Principle.** An N+1 is a defect in the code being written, not an incident to be
+triaged later. It is invisible in development because the fixture has three rows, and
+it stays invisible through review because the code reads naturally. The first thing
+that notices is production, at which point the fix is a hotfix rather than a word added
+to a `get_queryset`.
+
+So the question to answer while writing, every time, is: **does this change iterate
+over model instances, and if so, what queries does it run?** A production alert is the
+backstop for what got through, not the detection mechanism.
+
+Three habits cover almost all of it:
+
+1. **Fetch related data where the queryset is built.** `select_related` for forward
+   FK and OneToOne, `prefetch_related` for reverse FK and many-to-many, chained when a
+   view needs both. It goes in `get_queryset()` (view, viewset, or ModelAdmin) so every
+   render path gets it, and in a queryset or manager method once three call sites need
+   the same shape. A template is never the place to fix this: if the template is where
+   the query happens, the view is the bug.
+2. **Replace per-row aggregates with annotations.** `annotate(Count(...))` instead of
+   `.count()` in the loop, `annotate(Exists(...))` instead of `.exists()`. In a
+   template `{{ obj.things.count }}` is a query per row and looks like an attribute.
+3. **Pin the query count with a test.** The assertion worth writing is not a magic
+   number, it is that the count **does not change when the fixture doubles**. Full
+   coverage is already a merge gate here, so the test is being written anyway; this
+   only changes what it asserts.
+
+The trap that undoes a correct-looking fix: `prefetch_related` caches on the instance,
+and only `.all()` reads that cache. Calling `.filter()`, `.count()`, `.exists()`,
+`.first()`, or `.order_by()` on a prefetched related manager issues a fresh query per
+parent row, with the `prefetch_related` still sitting in the queryset looking like the
+problem is handled. Use `Prefetch(..., to_attr=...)` and do the rest in Python.
+
+Detection tooling, the full fix table by relation direction, the rest of the cache
+rules, and both test shapes are in `references/queries.md`. **Read it before adding a
+list view, a serializer, an admin changelist, or any loop over a queryset.**
+
+**This project** (`profile.json` → `queries`). `detection_local` and
+`detection_in_tests` name the tools actually installed, `queryset_helpers` where shared
+queryset shapes live. Do not add a detection package the project has not adopted as a
+side effect of fixing one view.
+
 ### Permissions: gate on `has_perm`, never on group membership
 
 **Principle.** Every "is this user allowed to do this" check goes through Django
@@ -327,6 +370,9 @@ an entrypoint, or a deploy workflow.**
 
 ## Reference files
 
+- `references/queries.md` — recognising an N+1 from the diff, the fix per relation
+  direction, the prefetch-cache traps, the query-count tests, and the libraries that
+  detect it.
 - `references/email.md` — the email pattern in full, with the reference
   implementation and its known issues.
 - `references/deployment.md` — the container boot contract, the dev compose stack,

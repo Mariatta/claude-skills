@@ -26,7 +26,7 @@ None right now. `/new-trip` used to live here; it only ever made sense inside th
 
 | Skill | Description |
 |-------|-------------|
-| `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
+| `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, N+1 queries caught at write time rather than by a production alert, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
 | `git` | Working practices for git and the forge around it: creating a repository with the settings it should have had on day one (private or public first, squash-only merges, delete the branch on merge, a ruleset requiring the CI check), cutting a branch from a freshly fetched default branch and the squash-merge trap that follows when you do not, rebasing rather than merging main back in, verifying mergeability before review, paired branches across sibling repositories, what must never be committed and what to do when it already has been, and using `git worktree` when two states are needed at once |
 
 ## Installation
