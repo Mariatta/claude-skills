@@ -52,6 +52,18 @@
     "speed_flags": ["--reuse-db", "--no-migrations"]
   },
 
+  "migrations": {
+    "one_per_pr": true,
+    "squash_command": "rm <app>/migrations/00XX_*.py (this branch's only), then python manage.py makemigrations <app> -n <name>",
+    "verify_commands": [
+      "python manage.py makemigrations --check --dry-run",
+      "migrate on a database that has never seen the branch"
+    ],
+    "applied_by": "the release step of every deploy, which is what freezes a merged migration",
+    "pr_environments": "false when pull requests get no deployed environment; otherwise name it and say whether it applies migrations to a shared database",
+    "data_migration_policy": "RunPython steps are copied into the regenerated file by hand, reverse_code included"
+  },
+
   "queries": {
     "policy": "related data is fetched where the queryset is built; every view that renders a list ships with a query-count test",
     "detection_local": ["django-debug-toolbar"],
