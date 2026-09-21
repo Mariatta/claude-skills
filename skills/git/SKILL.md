@@ -1,6 +1,6 @@
 ---
 name: git
-description: Working practices for git itself and the forge around it, independent of what the repository contains. Creating a repository with the settings it should have had from day one: asking private or public first, because on GitHub Free a private repository cannot have rulesets or branch protection at all, then squash-only merges, deleting the branch on merge, and a ruleset requiring the CI check, added last because a required check nothing reports blocks every merge forever. Where a branch starts and why it decides whether a pull request merges cleanly: cut every branch from a freshly fetched default branch, because a branch cut from an already-merged branch conflicts with the squash commit that replaced it, which shows up as conflicts in files nobody touched, as sections duplicated only in the merge result, and as pull requests whose checks never start. Rebasing rather than merging the default branch back in, force-with-lease, checking mergeable state before asking for review, and paired branches across sibling repositories. What must never be committed (secrets and environment files first), that .gitignore does not untrack anything, and that a committed secret gets rotated rather than merely deleted. And working in more than one branch at once with git worktree. Use whenever creating a repository or setting one up on GitHub, deciding whether a repository is private or public, configuring merge or branch-deletion settings, requiring a status check, creating a branch, opening a pull request, resolving a conflict in a file you did not edit, reacting to a pull request whose checks never ran, picking up work right after a merge or a release, initializing a repository, writing a .gitignore or .dockerignore, staging files, creating a file that holds credentials, reacting to a secret that reached a commit, or needing a second branch checked out while the first one is mid-change.
+description: Working practices for git itself and the forge around it, independent of what the repository contains. Creating a repository with the settings it should have had from day one: asking private or public first, because on GitHub Free a private repository cannot have rulesets or branch protection at all, then squash-only merges, deleting the branch on merge, and a ruleset requiring the CI check, added last because a required check nothing reports blocks every merge forever. Where a branch starts and why it decides whether a pull request merges cleanly: cut every branch from a freshly fetched default branch, because a branch cut from an already-merged branch conflicts with the squash commit that replaced it, which shows up as conflicts in files nobody touched, as sections duplicated only in the merge result, and as pull requests whose checks never start. Rebasing rather than merging the default branch back in, force-with-lease, checking mergeable state before asking for review, and paired branches across sibling repositories. What must never be committed (secrets and environment files first), that .gitignore does not untrack anything, and that a committed secret gets rotated rather than merely deleted. And working in more than one branch at once with git worktree. Use whenever creating a repository or setting one up on GitHub, deciding whether a repository is private or public, configuring merge or branch-deletion settings, requiring a status check, creating a branch, opening a pull request, resolving a conflict in a file you did not edit, reacting to a pull request whose checks never ran, picking up work right after a merge or a release, initializing a repository, writing a .gitignore or .dockerignore, staging files, creating a file that holds credentials, reacting to a secret that reached a commit, or needing a second branch checked out while the first one is mid-change. Stacking one pull request on another's branch and what happens when the base merges: retarget the stacked pull request to the default branch before merging the base with branch deletion, because the forge closes it otherwise, and a closed pull request can neither be retargeted nor, once its head is force-pushed, reopened; the recovery is a fresh pull request from the same branch. Also use it when opening a pull request against another pull request's branch, merging a pull request that another one is stacked on, or finding a pull request closed with its base branch deleted.
 ---
 
 # Working with git
@@ -250,6 +250,55 @@ What to know before you rely on it:
   metadata behind until `git worktree prune`.
 - Put worktrees **outside** the repository directory, so editors, linters and search
   do not index the same code twice.
+
+### Stacked pull requests: retarget before you merge the base
+
+**Principle.** A pull request whose base is another pull request's branch is
+tied to that branch's existence, not to the work it contains. Delete the base
+branch and the forge closes the stacked pull request; it does not move it to
+the default branch for you.
+
+Stacking is fine, and often the right way to keep a review focused on one
+change. The order of operations when the base merges is what matters:
+
+```bash
+# 1. Move the stacked PR onto the default branch FIRST (it is still open)
+gh api -X PATCH repos/OWNER/REPO/pulls/<stacked> -f base=main
+
+# 2. Now merge the base PR; deleting its branch is safe
+gh pr merge <base> --squash --delete-branch
+
+# 3. The stacked PR now shows the base's commits too. Rebase it onto the
+#    squash commit and force-push with a lease so it shows only its own.
+git fetch origin
+git rebase --onto origin/main <old-base-tip> my-stacked-branch
+git push --force-with-lease origin my-stacked-branch
+```
+
+Get the order wrong and the failure compounds, each step closing off the
+previous escape:
+
+| What you did | What the forge says |
+|---|---|
+| Merged the base with `--delete-branch` | The stacked PR is **closed**, base still named the deleted branch |
+| `PATCH ... -f base=main` on it | `Cannot change the base branch of a closed pull request` |
+| `PATCH ... -f state=open` | `state cannot be changed. The <base> branch has been deleted` |
+| Re-pushed the deleted base branch, then reopen | `state cannot be changed. The <head> branch was force-pushed or recreated` (if you rebased in between) |
+
+Restoring the deleted base branch does not help once the head has been
+rebased. At that point the closed pull request is unrecoverable, and the
+recovery is a **fresh pull request from the same branch**: same description,
+a first line saying it supersedes the closed one, and a comment on the closed
+one pointing forward. Nothing is lost if the closed PR had no review yet;
+if it had, link the review threads from the new description so they are
+not orphaned.
+
+Two habits make this a non-event:
+
+- When you open a stacked PR, note in its description which PR it stacks on,
+  so whoever merges the base knows step 1 exists.
+- Merge the base yourself only after step 1, or merge it **without**
+  `--delete-branch`, retarget, then delete the branch by hand.
 
 ## Reference files
 
