@@ -124,7 +124,33 @@ mostly Azure App Service specifics: if you deploy elsewhere, keep the boot contr
 and the token-refresh warning, and replace the platform gotchas with your own as you
 hit them.
 
-## 9. Queries — `profile.json` → `queries`
+## 9. Migrations — `profile.json` → `migrations`
+
+Two values decide how the convention behaves.
+
+`applied_by` names what runs `migrate`. If your deploy does not, and a person applies
+migrations by hand at a time of their choosing, say so: the "frozen once merged"
+rule then bites at that moment rather than at merge, and a migration that has not
+been applied anywhere yet can still be regenerated.
+
+`pr_environments` is the one to get right. Set it to `false` when a pull request gets
+no environment of its own. Name the platform when it does, and say whether it applies
+the branch's migrations to a **shared** database, because that is what turns a
+throwaway migration on an open branch into permanent production history.
+
+```json
+"migrations": {
+  "one_per_pr": true,
+  "applied_by": "the release phase of every deploy",
+  "pr_environments": false
+}
+```
+
+If your project genuinely wants a migration per logical step rather than per pull
+request, set `one_per_pr` to `false`. The rest of the convention still holds: a
+merged migration is not edited, and a wrong one is corrected by a new migration.
+
+## 10. Queries — `profile.json` → `queries`
 
 The principle (fetch related data where the queryset is built, and pin the count with a
 test) is portable and does not change. What changes is which detection tools are
@@ -166,4 +192,4 @@ The skill is designed to grow. To add one:
    convention is not yet understood well enough to be written down.
 
 Good candidates that are deliberately not covered yet: settings and environment
-handling, migration review, admin conventions, and view/service layering.
+handling, admin conventions, and view/service layering.
