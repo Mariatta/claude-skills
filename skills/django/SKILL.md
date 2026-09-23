@@ -1,6 +1,6 @@
 ---
 name: django
-description: House conventions for writing code in a Django codebase: formatter and linter compliance (black, isort, djlint, flake8), imports at module top with real refactors for circular imports, docstrings over comment blocks, maintained libraries over hand-rolled code, full test coverage as a merge gate, one squashed migration per pull request and never editing a merged one, N+1 queries caught at write time through select_related/prefetch_related in get_queryset and a query-count test rather than waiting for a production alert, permission gating through has_perm, secrets encrypted at rest, templates with no inline style blocks, the single-Markdown-template email pattern that produces both plain-text and HTML parts, and a portable container boot contract for deployment. Use this whenever writing, editing, or reviewing Python, templates, tests, settings, or deployment config in a Django project, even when the request is just "add a view" or "fix this bug" and says nothing about style. Concrete tools, thresholds, and paths come from profile.json; read it before assuming this project uses the same stack.
+description: House conventions for writing code in a Django codebase: formatter and linter compliance (black, isort, djlint, flake8), imports at module top with real refactors for circular imports, docstrings over comment blocks, maintained libraries over hand-rolled code, full test coverage as a merge gate, one squashed migration per pull request and never editing a merged one, N+1 queries caught at write time through select_related/prefetch_related in get_queryset and a query-count test rather than waiting for a production alert, permission gating through has_perm, secrets encrypted at rest, templates with no inline style blocks and no wrapped {# #} comments that render on the page, the single-Markdown-template email pattern that produces both plain-text and HTML parts, and a portable container boot contract for deployment. Use this whenever writing, editing, or reviewing Python, templates, tests, settings, or deployment config in a Django project, even when the request is just "add a view" or "fix this bug" and says nothing about style. Concrete tools, thresholds, and paths come from profile.json; read it before assuming this project uses the same stack.
 ---
 
 # Django conventions
@@ -355,6 +355,28 @@ across pages, reviewable as a diff, and keeps templates readable.
 - A test asserting that CSS literal text appears in a response breaks when the rule
   moves to a file. Assert the stylesheet `<link>` is present instead, or drop the
   assertion when it is now redundant.
+
+**A comment in a template has to be one Django actually hides.** `{#  #}` is a
+single-line comment: the lexer matches it only when it opens and closes on the
+same line, so a note wrapped over two lines is not a comment at all. It renders,
+at the top of the page, for everyone. Multi-line notes go in
+`{% comment %} ... {% endcomment %}`.
+
+This is worth a test rather than a habit, because it looks right in the diff and
+only shows up in a browser. A few lines that walk every template and fail on a
+line opening `{#` without closing it catches it before review:
+
+```python
+def unbalanced_lines(path):
+    return [
+        (number, line.strip())
+        for number, line in enumerate(path.read_text().splitlines(), 1)
+        if line.count("{#") and line.count("{#") != line.count("#}")
+    ]
+```
+
+Assert separately that the walk found templates at all, or a wrong root makes it
+pass silently forever.
 
 Repeated page furniture (a list header, a breadcrumb, a marketing hero) lives in one
 shared partial that pages include with parameters, not copy-pasted markup. Copy-paste
