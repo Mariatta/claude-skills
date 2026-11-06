@@ -1,6 +1,6 @@
 ---
 name: dependency-updates
-description: How to evaluate a dependency update and prove it compatible before it merges, whether Dependabot, Renovate or a person opened it, for a library, a tool, a GitHub Action or a base image. Covers reading the release notes of every version between the old pin and the new one and not only the newest, treating a major bump as a change to prove rather than a line to merge, finding how the project actually uses the package (directly, only through another library such as redis through kombu, or not at all), checking the intermediate library's own pins and release notes for the new major, installing the new versions and running pip check, the full test suite with its coverage gate, the changed tool itself, and a live smoke test against the real service for anything the tests mock away, probing the oldest server version a deployment might run when a default handshake or wire protocol changed, telling a pre-existing or environmental failure apart from a regression with a control run on the old version, exercising a GitHub Action bump through the pull request's own CI run and noting when a workflow runs only on tags, writing a changelog line when a downstream user imports the package, pinning below a version a dependency still caps, merging in the repository's own style on the owner's word, and what the bots hide, such as Dependabot's limit of five open pull requests per ecosystem. Use whenever asked to go through, review, verify, check, update or merge dependency bumps or Dependabot or Renovate pull requests, when a requirements or lockfile change is a major version, when a CI failure appears on a bump branch, or when deciding whether a bump needs a changelog entry or a minimum version in the docs.
+description: How to evaluate a dependency update and prove it compatible before it merges, whether Dependabot, Renovate or a person opened it, for a library, a tool, a GitHub Action or a base image. Use whenever asked to go through, review, verify, check, update or merge dependency bumps or bot pull requests, when a requirements or lockfile change is a major version, when a CI failure appears on a bump branch, or when deciding whether a bump needs a changelog entry or a minimum version in the docs. The steps: read every version between the old pin and the new one, find how the project actually uses the package, often only through another library, install the new versions and run pip check, the full suite, the changed tool itself and a live smoke test against the real service, probe the oldest server a deployment might run when a default handshake changed, separate environmental failures from regressions with a control run, write a changelog line when a downstream user imports the package, and merge on the owner's word.
 ---
 
 # Evaluating dependency updates
@@ -30,7 +30,7 @@ production image, the dev tooling or a workflow. In a fork with an `upstream`
 remote, `gh pr list` can answer for the wrong repository: name it with `-R`.
 
 ```bash
-gh pr list -R OWNER/REPO --author app/dependabot \
+gh pr list -R OWNER/REPO --author app/dependabot \   # or app/renovate
   --json number,title,headRefName,mergeable,statusCheckRollup
 ```
 
@@ -106,7 +106,7 @@ Three outcomes, each handled differently:
 ## 4. Install and run, locally, against the real thing
 
 Install every bumped version of the round into the project's environment
-(quote extras in zsh: `'moto[s3]==5.2.5'`), then:
+(quote extras in zsh: `'PACKAGE[extra]==X.Y.Z'`), then:
 
 1. **Conflicts.** `pip check`, or the ecosystem's equivalent, for the
    libraries that depend on the package.
@@ -120,7 +120,8 @@ Install every bumped version of the round into the project's environment
 4. **A live smoke test for what the tests mock away.** Tests run task queues
    eagerly and storage against a fake, so a broker or storage client bump is
    never exercised by them. Start the real thing against a real service (a
-   compose container already running locally, on a spare database number)
+   compose container already running locally, on a spare database or queue
+   the real service already serves)
    and read its log for the connect, the delivery and the acknowledgement.
 5. **The oldest server a deployment might run.** A client library's new
    default can be a handshake the server has to understand. When a major
@@ -176,11 +177,14 @@ Ask three questions before a major bump merges:
    that stops short of what the bot proposed.
 
 **Altering a bot's branch.** Once you push a commit to it, Dependabot stops
-rebasing it, so it may conflict with the default branch soon after. If the
-repository forbids force pushes, merge the default branch into the bump
-branch and resolve by hand; a squash merge flattens it. Verify the branch
-afterwards: the diff against the default branch should be exactly the pin
-plus your additions.
+rebasing it, so it may conflict with the default branch soon after. Bring it
+up to date the way the `git` skill's practice "Fix a bad base by rebasing,
+not by merging main back in" says: `git rebase origin/main`, then
+`git push --force-with-lease`. Only when the forge really blocks a
+non-fast-forward push to that branch, merge the default branch in and resolve
+by hand; a squash merge flattens it. Either way, verify the branch afterwards:
+its diff against the default branch should be exactly the pin plus your
+additions.
 
 **Merging is the owner's call.** Report the verdicts with a merge order,
 security fixes first, and merge only on their explicit word for this round.

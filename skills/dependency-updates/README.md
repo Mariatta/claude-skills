@@ -2,8 +2,8 @@
 
 How to evaluate a dependency update before it merges: read every version between the old pin and the new one, find how the project actually uses the package, run the suite and the real service with the new version installed, and write down what a downstream user or a deployer now needs to know.
 
-Loads on its own when Dependabot or Renovate pull requests are being gone
-through, when a requirements or lockfile change is a major version, when a
+Loads on its own when you are going through Dependabot or Renovate pull
+requests, when a requirements or lockfile change is a major version, when a
 CI failure appears on a bump branch, or when deciding whether a bump needs a
 changelog entry.
 
@@ -27,4 +27,4 @@ changelog entry.
   fixes first.
 
 `references/redis-py-8.md` works one update through from the bot's body to
-the merged changelog line.
+the changelog line and the open pull request.

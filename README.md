@@ -55,21 +55,21 @@ cp -r skills/django ~/.claude/skills/
 
 Nothing to type for either one. Claude loads a skill when what you are doing matches its `description`.
 
-### `git`
-
-Loads when a repository is being created, a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
-
-Creating a repository asks private or public first, since on GitHub Free a private repository cannot have rulesets or branch protection at all, and then applies squash-only merges, delete-branch-on-merge, and a ruleset requiring the CI check. `skills/git/references/new-repo.md` has the full sequence and the ruleset body; `gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
-
 ### `dependency-updates`
 
-Loads when Dependabot or Renovate pull requests are being gone through, when a requirements or lockfile change is a major version, when a CI failure appears on a bump branch, or when deciding whether a bump needs a changelog entry. The recurring one: a green check proves the mocked test path with the new pin, not the versions skipped in between or the production path, so every major between the pins is read, the real use is found (often only through another library), and the real service is run with the new version. `skills/dependency-updates/references/redis-py-8.md` works one update through end to end.
+Loads when you are going through Dependabot or Renovate pull requests, when a requirements or lockfile change is a major version, when a CI failure appears on a bump branch, or when deciding whether a bump needs a changelog entry. The recurring one: a green check proves the mocked test path with the new pin, not the versions skipped in between or the production path, so every major between the pins is read, the real use is found (often only through another library), and the real service is run with the new version. `skills/dependency-updates/references/redis-py-8.md` works one update through end to end.
 
 ### `django`
 
 Loads when you are working in a Django project, and applies the conventions in `skills/django/SKILL.md`.
 
 To point it at a project whose stack differs from the reference build, edit `skills/django/profile.json` and read `skills/django/ADAPTING.md`. Every project-specific value lives in the profile, so the conventions themselves stay portable.
+
+### `git`
+
+Loads when a repository is being created, a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
+
+Creating a repository asks private or public first, since on GitHub Free a private repository cannot have rulesets or branch protection at all, and then applies squash-only merges, delete-branch-on-merge, and a ruleset requiring the CI check. `skills/git/references/new-repo.md` has the full sequence and the ruleset body; `gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
 
 ## Adding your own
 

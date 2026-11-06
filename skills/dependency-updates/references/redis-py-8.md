@@ -60,9 +60,9 @@ the suite never exercises, because tests run Celery eagerly: a worker against
 the compose Redis 7 on a spare database number.
 
 ```bash
-celery -A portal worker -l info --pool solo -n smoke@%h > worker.log 2>&1 &
-celery -A portal inspect ping -d smoke@$(hostname) -t 10
-python -c "import django; django.setup(); from app.tasks import t; print(t.delay().id)"
+celery -A project worker -l info --pool solo -n smoke@%h > worker.log 2>&1 &
+celery -A project inspect ping -d smoke@$(hostname) -t 10
+python -c "import django; django.setup(); from project.tasks import a_cheap_task; print(a_cheap_task.delay().id)"
 ```
 
 Ping answered over pub/sub, two tasks delivered and acknowledged. The first
@@ -96,9 +96,11 @@ Broker section next to Database, stating the minimum once for every host.
 
 Pushing the changelog commit to Dependabot's branch stopped the bot rebasing
 it, and the branch conflicted with the default branch the same afternoon.
-Force pushes were not available, so the default branch was merged in and the
-changelog conflict resolved by hand; the squash merge flattens it. The 3.15
-CI job then failed once on a test that recomputed a timestamp-signed token
-after the email had been sent, a flake the clock produces when it crosses a
-second between the two calls; a rerun passed, and the flaky test went to the
-owner as a fix of its own. The merge itself was the owner's.
+The repository allows a force push to that branch, so the right move was a
+rebase; the tooling in use that day refused the force push, so the default
+branch was merged in instead and the changelog conflict resolved by hand,
+which the squash merge flattens. The 3.15 CI job then failed once on a test
+that recomputed a timestamp-signed token after the email had been sent, a
+flake the clock produces when it crosses a second between the two calls; a
+rerun passed, and the flaky test went to the owner as a fix of its own. The
+pull request is green and mergeable; the merge is the owner's.
