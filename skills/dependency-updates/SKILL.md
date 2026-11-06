@@ -123,7 +123,15 @@ Install every bumped version of the round into the project's environment
    never exercised by them. Start the real thing against a real service, on
    a spare database or queue of a compose service already running locally,
    and read its log for the connect, the delivery and the acknowledgement.
-5. **The oldest server a deployment might run.** A client library's new
+5. **Every migration from nothing, for a framework bump.** A suite that
+   runs with `--no-migrations` never applies a migration to an empty
+   database, so a framework release that changes how schema operations are
+   emitted (Django 6.0 stopped dropping columns with CASCADE) breaks a fresh
+   install while every existing deployment, and CI, stays green. Create an
+   empty database and run `manage.py migrate` against it; the check is a
+   minute, and the first community that installs from scratch is the one
+   that finds it otherwise.
+6. **The oldest server a deployment might run.** A client library's new
    default can be a handshake the server has to understand. When a major
    changes a wire protocol or a default handshake, probe the oldest server
    version a deployment could plausibly have (a throwaway
