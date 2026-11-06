@@ -26,6 +26,7 @@ None right now. `/new-trip` used to live here; it only ever made sense inside th
 
 | Skill | Description |
 |-------|-------------|
+| `dependency-updates` | How to evaluate a dependency update before it merges, whether a bot or a person opened it: read every version between the old pin and the new one, find how the project actually uses the package (directly, through another library, or not at all), run the suite and the real service with the new version installed, probe the oldest server a deployment might run when a default handshake changed, tell an environmental failure from a regression with a control run, and write down what a downstream user or a deployer now needs to know |
 | `django` | House conventions for Django work: formatter and linter compliance, imports at module top, docstrings, maintained libraries over hand-rolled code, coverage as a merge gate, one squashed migration per pull request and never editing a merged one, N+1 queries caught at write time rather than by a production alert, `has_perm` gating, secrets encrypted at rest, template and CSS rules, the single-Markdown-template email pattern, and a portable container boot contract |
 | `git` | Working practices for git and the forge around it: creating a repository with the settings it should have had on day one (private or public first, squash-only merges, delete the branch on merge, a ruleset requiring the CI check), cutting a branch from a freshly fetched default branch and the squash-merge trap that follows when you do not, rebasing rather than merging main back in, verifying mergeability before review, paired branches across sibling repositories, what must never be committed and what to do when it already has been, and using `git worktree` when two states are needed at once |
 
@@ -59,6 +60,10 @@ Nothing to type for either one. Claude loads a skill when what you are doing mat
 Loads when a repository is being created, a branch is being created, a pull request is being opened, a conflict turns up in a file nobody edited, a pull request's checks never start, a `.gitignore` is being written, files are being staged, or two branches are needed at once. The recurring one: cut every branch from a freshly fetched default branch, because a squash merge replaces your commit rather than moving it, so a branch cut from an already-merged branch collides with its own work.
 
 Creating a repository asks private or public first, since on GitHub Free a private repository cannot have rulesets or branch protection at all, and then applies squash-only merges, delete-branch-on-merge, and a ruleset requiring the CI check. `skills/git/references/new-repo.md` has the full sequence and the ruleset body; `gitignore.md` has the ignore lists; `gitignore-templates.md` has paste-ready blocks per ecosystem.
+
+### `dependency-updates`
+
+Loads when Dependabot or Renovate pull requests are being gone through, when a requirements or lockfile change is a major version, when a CI failure appears on a bump branch, or when deciding whether a bump needs a changelog entry. The recurring one: a green check proves the mocked test path with the new pin, not the versions skipped in between or the production path, so every major between the pins is read, the real use is found (often only through another library), and the real service is run with the new version. `skills/dependency-updates/references/redis-py-8.md` works one update through end to end.
 
 ### `django`
 
