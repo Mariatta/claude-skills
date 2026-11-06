@@ -28,9 +28,10 @@ List the updates, and for each one note the ecosystem (pip, npm,
 GitHub Actions, Docker), the file it touches, and whether that file is in the
 production image, the dev tooling or a workflow. In a fork with an `upstream`
 remote, `gh pr list` can answer for the wrong repository: name it with `-R`.
+For Renovate the author is `app/renovate`.
 
 ```bash
-gh pr list -R OWNER/REPO --author app/dependabot \   # or app/renovate
+gh pr list -R OWNER/REPO --author app/dependabot \
   --json number,title,headRefName,mergeable,statusCheckRollup
 ```
 
@@ -119,9 +120,8 @@ Install every bumped version of the round into the project's environment
    parse the project's files passes the suite and fails in CI.
 4. **A live smoke test for what the tests mock away.** Tests run task queues
    eagerly and storage against a fake, so a broker or storage client bump is
-   never exercised by them. Start the real thing against a real service (a
-   compose container already running locally, on a spare database or queue
-   the real service already serves)
+   never exercised by them. Start the real thing against a real service, on
+   a spare database or queue of a compose service already running locally,
    and read its log for the connect, the delivery and the acknowledgement.
 5. **The oldest server a deployment might run.** A client library's new
    default can be a handshake the server has to understand. When a major
@@ -179,8 +179,8 @@ Ask three questions before a major bump merges:
 **Altering a bot's branch.** Once you push a commit to it, Dependabot stops
 rebasing it, so it may conflict with the default branch soon after. Bring it
 up to date the way the `git` skill's practice "Fix a bad base by rebasing,
-not by merging main back in" says: `git rebase origin/main`, then
-`git push --force-with-lease`. Only when the forge really blocks a
+not by merging main back in" says: `git fetch origin && git rebase
+origin/main`, then `git push --force-with-lease`. Only when the forge really blocks a
 non-fast-forward push to that branch, merge the default branch in and resolve
 by hand; a squash merge flattens it. Either way, verify the branch afterwards:
 its diff against the default branch should be exactly the pin plus your
