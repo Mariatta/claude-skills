@@ -129,8 +129,7 @@ Install every bumped version of the round into the project's environment
    emitted (Django 6.0 stopped dropping columns with CASCADE) breaks a fresh
    install while every existing deployment, and CI, stays green. Create an
    empty database and run `manage.py migrate` against it; the check is a
-   minute, and the first community that installs from scratch is the one
-   that finds it otherwise.
+   minute, and the next fresh install is what finds it otherwise.
 6. **The oldest server a deployment might run.** A client library's new
    default can be a handshake the server has to understand. When a major
    changes a wire protocol or a default handshake, probe the oldest server
